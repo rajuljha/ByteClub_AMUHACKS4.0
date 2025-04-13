@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShareIcon, Clock, BookOpen, School, Award } from "lucide-react";
+import { ShareIcon, Clock, BookOpen, School, Award, Trophy, Pencil } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/utils/toast";
 import QuizResultModal from "./QuizResultModal";
+import LeaderboardModal from "./LeaderboardModal";
+import QuizEditModal from "./QuizEditModal";
 import WhatsAppIcon from "../../../public/whatsapp.png";
 
 interface QuizCardProps {
@@ -36,6 +38,8 @@ interface QuizCardProps {
 const QuizCard = ({ quiz }: QuizCardProps) => {
   const [isCopied, setIsCopied] = useState(false);
   const [showResultModal, setShowResultModal] = useState(false);
+  const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // This would normally come from an API, this is sample data
   const sampleResult = {
@@ -46,6 +50,82 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
     timeTaken: "8m 45s",
     attemptedAt: new Date().toISOString()
   };
+
+  // Sample leaderboard data - this would come from an API in a real app
+  const sampleParticipants = [
+    {
+      id: "p1",
+      name: "John Smith",
+      score: 85,
+      percentage: 85,
+      attemptedAt: new Date(Date.now() - 3600000).toISOString() // 1 hour ago
+    },
+    {
+      id: "p2",
+      name: "Emma Johnson",
+      score: 95,
+      percentage: 95,
+      attemptedAt: new Date(Date.now() - 7200000).toISOString() // 2 hours ago
+    },
+    {
+      id: "p3",
+      name: "Michael Brown",
+      score: 75,
+      percentage: 75,
+      attemptedAt: new Date(Date.now() - 10800000).toISOString() // 3 hours ago
+    },
+    {
+      id: "p4",
+      name: "Lisa Davis",
+      score: 90,
+      percentage: 90,
+      attemptedAt: new Date(Date.now() - 14400000).toISOString() // 4 hours ago
+    },
+    {
+      id: "p5",
+      name: "David Wilson",
+      score: 80,
+      percentage: 80,
+      attemptedAt: new Date(Date.now() - 18000000).toISOString() // 5 hours ago
+    }
+  ];
+
+  // Sample questions - this would come from an API in a real app
+  const sampleQuestions = [
+    {
+      id: "q1",
+      text: "What is the capital of France?",
+      options: [
+        { id: "o1", text: "London" },
+        { id: "o2", text: "Paris" },
+        { id: "o3", text: "Berlin" },
+        { id: "o4", text: "Madrid" }
+      ],
+      correctOptionId: "o2"
+    },
+    {
+      id: "q2",
+      text: "What is 2 + 2?",
+      options: [
+        { id: "o1", text: "3" },
+        { id: "o2", text: "4" },
+        { id: "o3", text: "5" },
+        { id: "o4", text: "6" }
+      ],
+      correctOptionId: "o2"
+    },
+    {
+      id: "q3",
+      text: "Which planet is known as the Red Planet?",
+      options: [
+        { id: "o1", text: "Earth" },
+        { id: "o2", text: "Mars" },
+        { id: "o3", text: "Venus" },
+        { id: "o4", text: "Jupiter" }
+      ],
+      correctOptionId: "o2"
+    }
+  ];
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -63,6 +143,13 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
     setTimeout(() => {
       setIsCopied(false);
     }, 2000);
+  };
+
+  const handleSaveQuestions = (updatedQuestions: any[]) => {
+    // This would normally make an API call to save the updated questions
+    console.log("Updated questions:", updatedQuestions);
+    // For now we just show a success toast
+    toast.success("Quiz questions updated successfully!");
   };
 
   return (
@@ -156,13 +243,35 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
           </DialogContent>
         </Dialog>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowResultModal(true)}
-        >
-          View Results
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowLeaderboardModal(true)}
+            className="flex items-center gap-1"
+          >
+            <Trophy className="h-4 w-4" />
+            Leaderboard
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowResultModal(true)}
+          >
+            View Results
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowEditModal(true)}
+            className="flex items-center gap-1"
+          >
+            <Pencil className="h-4 w-4" />
+            Edit Questions
+          </Button>
+        </div>
       </CardFooter>
 
       {/* Quiz Result Modal */}
@@ -170,6 +279,23 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
         open={showResultModal}
         onOpenChange={setShowResultModal}
         result={sampleResult}
+      />
+
+      {/* Leaderboard Modal */}
+      <LeaderboardModal
+        open={showLeaderboardModal}
+        onOpenChange={setShowLeaderboardModal}
+        quizName={quiz.name}
+        participants={sampleParticipants}
+      />
+      
+      {/* Quiz Edit Modal */}
+      <QuizEditModal
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+        quizName={quiz.name}
+        questions={sampleQuestions}
+        onSave={handleSaveQuestions}
       />
     </Card>
   );

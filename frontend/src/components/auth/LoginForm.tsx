@@ -1,21 +1,44 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import GoogleLoginButton from "./GoogleLoginButton";
+import EmailLoginButton from "./EmailLoginButton";
+import RegistrationForm from "./RegistrationForm";
 
 interface LoginFormProps {
   onLogin: (userData: any) => void;
 }
 
 const LoginForm = ({ onLogin }: LoginFormProps) => {
+  const [isRegistering, setIsRegistering] = useState(false);
+
+  const switchToRegister = () => {
+    setIsRegistering(true);
+  };
+
+  const switchToLogin = () => {
+    setIsRegistering(false);
+  };
+
   return (
     <Card className="w-full max-w-md">
-      <CardContent className="grid gap-4 mt-5">
-        <GoogleLoginButton onSuccess={onLogin} />
+      <CardHeader>
+        <CardTitle>{isRegistering ? "Create an Account" : "Login to Your Account"}</CardTitle>
+        <CardDescription>
+          {isRegistering 
+            ? "Fill out the form below to create your account" 
+            : "Enter your credentials to access your account"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        {isRegistering ? (
+          <RegistrationForm onSuccess={onLogin} switchToLogin={switchToLogin} />
+        ) : (
+          <EmailLoginButton onSuccess={onLogin} switchToRegister={switchToRegister} />
+        )}
       </CardContent>
       <CardFooter className="flex flex-col items-center justify-center gap-2">
         <p className="text-center text-sm text-muted-foreground mt-2">
-          By logging in, you agree to our Terms of Service and Privacy Policy.
+          By {isRegistering ? "registering" : "logging in"}, you agree to our Terms of Service and Privacy Policy.
         </p>
       </CardFooter>
     </Card>
