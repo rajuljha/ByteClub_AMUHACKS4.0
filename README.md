@@ -26,7 +26,7 @@ Whether it's basic math, science concepts, or general knowledge, Quizzly brings 
   - Parents can assign quizzes to children using secure 4-digit PINs.
 - Child-Friendly Participation
   - Kids can start a quiz by simply entering a 4-digit PIN and a fun, unique name (like their favorite player or pet).
-    > [!Tip] Choose a different fruit for more fun :\
+> [!Tip] Choose a different fruit for more fun :\
   - No accounts. No complexity. Just pure learning and fun.
 - Smart Feedback & Analytics
   - After submitting the quiz, children get immediate feedback:
@@ -88,6 +88,9 @@ Whether it's basic math, science concepts, or general knowledge, Quizzly brings 
 
 ### Using Git Clone
 
+- Backend
+
+First things first, create a virtual environment and activate it.
 We will use `Dockerfile` to orchestrate everything.
 
 > [!NOTE]
@@ -100,6 +103,12 @@ mv .env.sample .env
 ```
 Populate the environment variables after seeing in the env.sample file.
 
+Install dependencies and run the server.
+
+```sh
+pip install -r requirements.txt
+uvicorn quizzly.main:app --reload
+```
 
 ### Using Docker
 
@@ -110,15 +119,6 @@ If you don't want the hassle, pull the official backend image from the Dockerhub
 ```sh
 docker pull rjknightmare/quizzly-backend
 docker run -p 8000:8000 --env-file .env rjknightmare/quizzly-backend:latest
-```
-
-
-- Backend
-First things first, create a virtual environment and activate it.
-
-```sh
-pip install -r requirements.txt
-uvicorn quizzly.main:app --reload
 ```
 
 The backend will be up and running on https://localhost:8000 (Visit /docs endpoint for complete API documentation powered by Swagger UI).
