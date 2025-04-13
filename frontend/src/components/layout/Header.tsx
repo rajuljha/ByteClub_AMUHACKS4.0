@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User } from "lucide-react";
 import { toast } from "@/utils/toast";
 
 interface HeaderProps {
@@ -38,7 +39,7 @@ const Header = ({ user, onLogout }: HeaderProps) => {
         <div className="flex items-center gap-2">
           <div className="flex items-center">
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-purple-600">
-              ParentQuizHub
+              Quizly.io
             </span>
           </div>
         </div>

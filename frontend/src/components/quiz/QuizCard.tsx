@@ -261,7 +261,7 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
             className="flex items-center gap-1"
           >
             <Pencil className="h-4 w-4" />
-            Edit Questions
+            View/Edit
           </Button>
         </div>
       </CardFooter>

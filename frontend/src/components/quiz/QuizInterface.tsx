@@ -13,12 +13,6 @@ interface Option {
   text: string;
 }
 
-// interface Question {
-//   id: string;
-//   text: string;
-//   options: Option[];
-//   correctOptionId: string;
-// }
 interface Question {
   id: string;
   question: string;
@@ -26,7 +20,7 @@ interface Question {
   choice_B : string;
   choice_C : string;
   choice_D : string;
-  correctOptionId: string;
+  answer: string;
 }
 
 interface Quiz {
@@ -58,7 +52,7 @@ enum QuizState {
 }
 
 const QuizInterface = () => {
-  const { quizId } = useParams<{ quizId: string }>(); // Extract quizId from URL
+  const { quizId } = useParams<{ quizId: string }>(); 
   const [quizState, setQuizState] = useState<QuizState>(QuizState.PASSWORD);
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -67,6 +61,8 @@ const QuizInterface = () => {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
+  const [userName, setUserName] = useState<string>(""); 
+
 
   // Fetch quiz data based on quizId from URL
   useEffect(() => {
@@ -76,19 +72,20 @@ const QuizInterface = () => {
 
         // Set the quiz data
         setQuiz(response.data);
-        setTimeRemaining(parseInt(response.data.timeInMinutes) * 60);
+        setTimeRemaining(parseInt(response.data.exec_time) * 60);
       } catch (error) {
         console.error("Error fetching quiz data:", error);
       }
     };
 
     fetchQuizData();
-  }, [quizId]); // Run only when quizId changes
+  }, [quizId]); 
 
   console.log(quiz);
   
 
-  const handlePasswordVerified = () => {
+  const handlePasswordVerified = (name: string) => {
+    setUserName(name); 
     setQuizState(QuizState.INSTRUCTIONS);
   };
 
@@ -96,13 +93,13 @@ const QuizInterface = () => {
     setQuizState(QuizState.QUESTIONS);
     setStartTime(new Date());
   };
-
   const handleSelectOption = (optionId: string) => {
     setAnswers((prev) => ({
       ...prev,
-      [quiz?.questions[currentQuestionIndex].id || ""]: optionId,
+      [currentQuestionIndex]: optionId,
     }));
   };
+  
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < (quiz?.questions.length || 0) - 1) {
@@ -116,41 +113,56 @@ const QuizInterface = () => {
     }
   };
 
-  const handleSubmitQuiz = () => {
+  const handleCloseQuiz = () => {
+    window.close();
+  };
+
+  const handleSubmitQuiz = async () => {
     const endTime = new Date();
     const timeTakenMs = endTime.getTime() - (startTime?.getTime() || endTime.getTime());
     const timeTakenMinutes = Math.floor(timeTakenMs / 60000);
     const timeTakenSeconds = Math.floor((timeTakenMs % 60000) / 1000);
     const timeTakenFormatted = `${timeTakenMinutes}m ${timeTakenSeconds}s`;
-
-    let correctCount = 0;
-    let incorrectCount = 0;
-
-    quiz?.questions.forEach((question) => {
-      const userAnswer = answers[question.id];
-      if (userAnswer === question.correctOptionId) {
-        correctCount++;
-      } else if (userAnswer) {
-        incorrectCount++;
-      }
+  
+    const evaluatedAnswers = quiz?.questions.map((question, index) => {
+      return answers[index]; 
     });
+  
+    console.log("Submitting the following answers:", evaluatedAnswers); 
+    
+  
+    try {
+      
+      const response = await axios.post(
+        `http://localhost:8000/quiz/quizzes/${quizId}/submit_answers`,
+        {
+          name: userName, 
+          answers: evaluatedAnswers, 
+        },
+      );
+  
+      console.log("Response from server:", response.data); 
+  
+      const { score, total } = response.data;
 
-    const result: QuizResult = {
-      quizName: quiz?.name || "",
-      totalQuestions: quiz?.questions.length || 0,
-      correctAnswers: correctCount,
-      incorrectAnswers: incorrectCount,
-      timeTaken: timeTakenFormatted,
-      attemptedAt: endTime.toISOString(),
-    };
-
-    setQuizResult(result);
-    setQuizState(QuizState.COMPLETED);
-    setShowResults(true);
-
-    const percentage = Math.round((correctCount / (quiz?.questions.length || 1)) * 100);
-    toast.success(`Quiz completed with score: ${percentage}%`);
+      setQuizResult({
+        quizName: quiz?.name || "",
+        totalQuestions: total,
+        correctAnswers: score,
+        incorrectAnswers: total - score,
+        timeTaken: timeTakenFormatted,
+        attemptedAt: endTime.toISOString(),
+      });
+      setQuizState(QuizState.COMPLETED);
+      setShowResults(true);
+  
+      toast.success(`Quiz completed with score: ${score}/${total}`);
+    } catch (error) {
+      console.error("Error submitting quiz:", error);
+      toast.error("Failed to submit quiz answers. Please try again.");
+    }
   };
+  
 
   const renderCurrentView = () => {
     switch (quizState) {
@@ -191,6 +203,10 @@ const QuizInterface = () => {
               <Button onClick={() => setShowResults(true)} className="bg-brand-purple hover:bg-purple-600">
                 View Results
               </Button>
+              {/* // close tab */}
+              <Button onClick={handleCloseQuiz}  className="ml-4 bg-red-600 hover:bg-purple-600">
+                Close
+              </Button>
             </div>
           </div>
         );
@@ -208,7 +224,7 @@ const QuizInterface = () => {
       <header className="border-b bg-white">
         <div className="container flex h-16 items-center justify-between px-4 md:px-6">
           <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-purple-600">
-            Quizly
+            Quizly.io
           </span>
         </div>
       </header>

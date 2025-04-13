@@ -1,23 +1,16 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { ChevronLeft, ChevronRight, Clock, AlertCircle } from "lucide-react";
-
-interface Option {
-  id: string;
-  text: string;
-}
 
 interface Question {
   id: string;
   question: string;
-  choice_A : string;
-  choice_B : string;
-  choice_C : string;
-  choice_D : string;
-  correctOptionId: string;
+  choice_A: string;
+  choice_B: string;
+  choice_C: string;
+  choice_D: string;
+  answer: string;
 }
 
 interface QuizQuestionProps {
@@ -44,9 +37,27 @@ const QuizQuestion = ({
   onSubmit
 }: QuizQuestionProps) => {
   const isLastQuestion = currentQuestion === totalQuestions;
-
-  console.log(question);
   
+
+  const [localSelected, setLocalSelected] = useState<string | null>(selectedOption);
+  
+  
+  console.log(question.question);
+  
+  useEffect(() => {
+    setLocalSelected(selectedOption);
+  }, [question, selectedOption]);
+  
+  const handleOptionSelect = (optionId: string) => {
+    console.log(`Option selected: ${optionId}`);
+    setLocalSelected(optionId);
+    onSelectOption(optionId);
+  };
+
+  // Custom next handler to reset selection after moving to next question
+  const handleNext = () => {
+    onNext();
+  };
 
   return (
     <div className="container max-w-2xl mx-auto px-4 py-8">
@@ -68,20 +79,69 @@ const QuizQuestion = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={selectedOption || ""} onValueChange={onSelectOption} className="space-y-3">
-              <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 transition-colors">
-                <RadioGroupItem value={question.choice_A} id={question.choice_A} />
-                <Label htmlFor={question.choice_A} className="flex-1 cursor-pointer">{question.choice_A}</Label>
-                <RadioGroupItem value={question.choice_B} id={question.choice_B} />
-                <Label htmlFor={question.choice_B} className="flex-1 cursor-pointer">{question.choice_B}</Label>
-                <RadioGroupItem value={question.choice_C} id={question.choice_C} />
-                <Label htmlFor={question.choice_C} className="flex-1 cursor-pointer">{question.choice_C}</Label>
-                <RadioGroupItem value={question.choice_D} id={question.choice_D} />
-                <Label htmlFor={question.choice_D} className="flex-1 cursor-pointer">{question.choice_D}</Label>
+          <div className="space-y-3">
+            {/* Option A */}
+            <div 
+              className={`flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 transition-colors cursor-pointer ${
+                localSelected === "A" ? "bg-purple-50 border-purple-300" : ""
+              }`}
+              onClick={() => handleOptionSelect("A")}
+            >
+              <div className="flex items-center justify-center w-4 h-4 rounded-full border border-gray-300">
+                {localSelected === "A" && (
+                  <div className="w-2 h-2 rounded-full bg-brand-purple"></div>
+                )}
               </div>
-          </RadioGroup>
+              <div className="flex-1">{question.choice_A}</div>
+            </div>
+            
+            {/* Option B */}
+            <div 
+              className={`flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 transition-colors cursor-pointer ${
+                localSelected === "B" ? "bg-purple-50 border-purple-300" : ""
+              }`}
+              onClick={() => handleOptionSelect("B")}
+            >
+              <div className="flex items-center justify-center w-4 h-4 rounded-full border border-gray-300">
+                {localSelected === "B" && (
+                  <div className="w-2 h-2 rounded-full bg-brand-purple"></div>
+                )}
+              </div>
+              <div className="flex-1">{question.choice_B}</div>
+            </div>
+            
+            {/* Option C */}
+            <div 
+              className={`flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 transition-colors cursor-pointer ${
+                localSelected === "C" ? "bg-purple-50 border-purple-300" : ""
+              }`}
+              onClick={() => handleOptionSelect("C")}
+            >
+              <div className="flex items-center justify-center w-4 h-4 rounded-full border border-gray-300">
+                {localSelected === "C" && (
+                  <div className="w-2 h-2 rounded-full bg-brand-purple"></div>
+                )}
+              </div>
+              <div className="flex-1">{question.choice_C}</div>
+            </div>
+            
+            {/* Option D */}
+            <div 
+              className={`flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 transition-colors cursor-pointer ${
+                localSelected === "D" ? "bg-purple-50 border-purple-300" : ""
+              }`}
+              onClick={() => handleOptionSelect("D")}
+            >
+              <div className="flex items-center justify-center w-4 h-4 rounded-full border border-gray-300">
+                {localSelected === "D" && (
+                  <div className="w-2 h-2 rounded-full bg-brand-purple"></div>
+                )}
+              </div>
+              <div className="flex-1">{question.choice_D}</div>
+            </div>
+          </div>
 
-          {!selectedOption && (
+          {!localSelected && (
             <div className="flex items-center gap-2 mt-4 text-amber-600 text-sm">
               <AlertCircle className="h-4 w-4" />
               <span>Please select an answer to continue</span>
@@ -101,15 +161,15 @@ const QuizQuestion = ({
           {isLastQuestion ? (
             <Button
               onClick={onSubmit}
-              disabled={!selectedOption}
+              disabled={!localSelected}
               className="bg-brand-purple hover:bg-purple-600 gap-1"
             >
               Submit Quiz
             </Button>
           ) : (
             <Button
-              onClick={onNext}
-              disabled={!selectedOption}
+              onClick={handleNext}
+              disabled={!localSelected}
               className="gap-1"
             >
               Next <ChevronRight className="h-4 w-4" />

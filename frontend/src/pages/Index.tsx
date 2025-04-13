@@ -54,7 +54,7 @@ const Index = () => {
             <div className="container flex h-16 items-center justify-between px-4 md:px-6">
               <div className="flex items-center gap-2">
                 <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-purple-600">
-                  Quizly
+                  Quizly.io
                 </span>
               </div>
               <div>

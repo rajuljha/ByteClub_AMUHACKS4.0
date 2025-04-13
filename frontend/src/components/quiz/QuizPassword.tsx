@@ -10,7 +10,8 @@ interface QuizPasswordProps {
   quizId: string;
   quizName: string;
   password: string;
-  onPasswordVerified: () => void;
+  // onPasswordVerified: () => void;
+  onPasswordVerified: (name: string) => void; // Changed to pass the name
 }
 
 const QuizPassword = ({ quizId, quizName, password, onPasswordVerified }: QuizPasswordProps) => {
@@ -39,7 +40,7 @@ const QuizPassword = ({ quizId, quizName, password, onPasswordVerified }: QuizPa
 
         if (response.status === 200) {
           toast.success("Quiz started successfully!");
-          onPasswordVerified();
+          onPasswordVerified(enteredName); // Pass name to parent
         }
       } catch (error) {
         console.error("Error starting the quiz:", error);
