@@ -1,0 +1,10 @@
+fastapi             ~=0.110
+motor               ~=3.3
+uvicorn             ~=0.28
+python-jose
+python-dotenv
+passlib[bcrypt]
+uvicorn
+pydantic[email]
+pydantic-settings
+PyJWT>=2.0.0
