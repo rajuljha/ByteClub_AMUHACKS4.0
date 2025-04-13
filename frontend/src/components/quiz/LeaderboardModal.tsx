@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   Table,
@@ -10,29 +9,72 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Trophy, Medal, Star, User, Eye } from "lucide-react";
+import { Trophy, Medal, Star, User, Eye, Loader2, Clock } from "lucide-react";
 import QuizResultModal from "./QuizResultModal";
+import axios from "axios";
+
+interface Answer {
+  question_index: number;
+  answer: string;
+  is_correct: boolean;
+}
 
 interface Participant {
   id: string;
   name: string;
   score: number;
   percentage: number;
+  correctAnswers: number;
+  incorrectAnswers: number;
+  timeTaken: string;
   attemptedAt: string;
+  answers: Answer[];
 }
 
 interface LeaderboardModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   quizName: string;
-  participants: Participant[];
+  quizId: string;
 }
 
-const LeaderboardModal = ({ open, onOpenChange, quizName, participants }: LeaderboardModalProps) => {
-  // Sort participants by score (highest first)
-  const sortedParticipants = [...participants].sort((a, b) => b.score - a.score);
+const LeaderboardModal = ({ open, onOpenChange, quizName, quizId }: LeaderboardModalProps) => {
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
   const [showResultModal, setShowResultModal] = useState(false);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      if (!open) return;
+      
+      setIsLoading(true);
+      setError(null);
+      try {
+        const userInfo = localStorage.getItem("user");
+        const user = JSON.parse(userInfo || "{}");
+        const token = user.access_token;
+
+        const response = await axios.get(
+          `http://localhost:8000/quiz/quizzes/${quizId}/leaderboard`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setParticipants(response.data);
+      } catch (err) {
+        console.error("Error fetching leaderboard:", err);
+        setError("Failed to load leaderboard data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLeaderboard();
+  }, [open, quizId]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -59,6 +101,9 @@ const LeaderboardModal = ({ open, onOpenChange, quizName, participants }: Leader
     }
   };
 
+  console.log("aarish")
+  console.log(participants)
+
   const handleViewResult = (participant: Participant) => {
     setSelectedParticipant(participant);
     setShowResultModal(true);
@@ -67,56 +112,78 @@ const LeaderboardModal = ({ open, onOpenChange, quizName, participants }: Leader
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-xl">
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl">
+            <DialogTitle className="text-2xl font-bold">
               Leaderboard: {quizName}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="py-4">
-            {sortedParticipants.length > 0 ? (
+          <div className="py-6">
+            {isLoading ? (
+              <div className="flex justify-center items-center py-12">
+                <Loader2 className="h-10 w-10 animate-spin text-brand-purple" />
+              </div>
+            ) : error ? (
+              <div className="text-center py-12 text-red-500 text-lg">
+                {error}
+              </div>
+            ) : participants.length > 0 ? (
               <div className="rounded-md border">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[60px] text-center">Rank</TableHead>
-                      <TableHead>Participant</TableHead>
-                      <TableHead className="text-right">Score</TableHead>
-                      <TableHead className="text-right hidden md:table-cell">Date</TableHead>
-                      <TableHead className="text-center w-[100px]">Action</TableHead>
+                    <TableRow className="bg-brand-lightPurple/10">
+                      <TableHead className="w-[60px] text-center text-base">Rank</TableHead>
+                      <TableHead className="text-base">Participant</TableHead>
+                      <TableHead className="text-right text-base">Score</TableHead>
+                      <TableHead className="text-right text-base">Correct/Total</TableHead>
+                      <TableHead className="text-right hidden md:table-cell text-base">
+                        <div className="flex items-center justify-end gap-1">
+                          <Clock className="h-5 w-5" />
+                          Time
+                        </div>
+                      </TableHead>
+                      <TableHead className="text-right hidden md:table-cell text-base">Date</TableHead>
+                      <TableHead className="text-center w-[120px] text-base">Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sortedParticipants.map((participant, index) => (
+                    {participants.map((participant, index) => (
                       <TableRow key={participant.id} className={index < 3 ? "bg-brand-lightPurple/20" : ""}>
-                        <TableCell className="text-center font-medium">
+                        <TableCell className="text-center font-medium py-4">
                           <div className="flex justify-center items-center">
                             {getRankIcon(index)}
                           </div>
                         </TableCell>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium py-4">
                           <div className="flex items-center gap-2">
-                            <User className="h-4 w-4 text-muted-foreground" />
-                            {participant.name}
+                            <User className="h-5 w-5 text-muted-foreground" />
+                            <span className="text-base">{participant.name}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right">
-                          <div className="font-medium">{participant.percentage}%</div>
-                          <div className="text-xs text-muted-foreground">{participant.score} points</div>
+                        <TableCell className="text-right py-4">
+                          <div className="font-medium text-lg">{participant.percentage}%</div>
+                          <div className="text-sm text-muted-foreground">{participant.score} points</div>
                         </TableCell>
-                        <TableCell className="text-right text-muted-foreground text-sm hidden md:table-cell">
+                        <TableCell className="text-right py-4">
+                          <div className="font-medium text-lg text-green-600">{participant.correctAnswers}</div>
+                          <div className="text-sm text-muted-foreground">/ {participant.correctAnswers + participant.incorrectAnswers}</div>
+                        </TableCell>
+                        <TableCell className="text-right text-muted-foreground text-base hidden md:table-cell py-4">
+                          {participant.timeTaken}
+                        </TableCell>
+                        <TableCell className="text-right text-muted-foreground text-base hidden md:table-cell py-4">
                           {formatDate(participant.attemptedAt)}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-4">
                           <Button 
                             variant="ghost" 
                             size="sm" 
                             onClick={() => handleViewResult(participant)}
                             className="flex items-center gap-1 w-full justify-center"
                           >
-                            <Eye className="h-4 w-4" />
-                            <span className="hidden sm:inline">View Result</span>
+                            <Eye className="h-5 w-5" />
+                            <span className="hidden sm:inline text-base">View Result</span>
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -125,7 +192,7 @@ const LeaderboardModal = ({ open, onOpenChange, quizName, participants }: Leader
                 </Table>
               </div>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-12 text-muted-foreground text-lg">
                 No participants have attempted this quiz yet.
               </div>
             )}
@@ -140,10 +207,10 @@ const LeaderboardModal = ({ open, onOpenChange, quizName, participants }: Leader
           onOpenChange={setShowResultModal}
           result={{
             quizName: quizName,
-            totalQuestions: selectedParticipant.score / (selectedParticipant.percentage / 100),
-            correctAnswers: selectedParticipant.score,
-            incorrectAnswers: (selectedParticipant.score / (selectedParticipant.percentage / 100)) - selectedParticipant.score,
-            timeTaken: "N/A", // We don't have time taken data from leaderboard participants
+            totalQuestions: selectedParticipant.correctAnswers + selectedParticipant.incorrectAnswers,
+            correctAnswers: selectedParticipant.correctAnswers,
+            incorrectAnswers: selectedParticipant.incorrectAnswers,
+            timeTaken: selectedParticipant.timeTaken,
             attemptedAt: selectedParticipant.attemptedAt
           }}
         />

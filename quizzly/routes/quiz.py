@@ -167,6 +167,12 @@ async def submit_answers(
         if correct:
             score += 1
 
+    # Calculate time taken
+    end_time = datetime.now(IST).replace(tzinfo=None)
+    start_time = quiz.get("start_time")
+    exec_time = (end_time - start_time).total_seconds() if start_time else 0
+    exec_time = round(exec_time, 2)
+
     user_response = {
         "name": submission.name,
         "answers": evaluated_answers,
@@ -179,7 +185,9 @@ async def submit_answers(
             "$push": {"user_responses": user_response},
             "$set": {
                 "is_executed": True,
-                "is_started": False
+                "is_started": False,
+                "end_time": end_time,
+                "exec_time": exec_time
             }
         }
     )
@@ -262,3 +270,63 @@ async def end_quiz(quiz_id: str, request: EndQuizRequest):
         "right_questions": right_questions,
         "wrong_questions": wrong_questions
     }
+
+
+@router.get("/quizzes/{quiz_id}/leaderboard")
+async def get_leaderboard(quiz_id: str):
+    quiz = await db.quizzes.find_one({"_id": quiz_id})
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+
+    user_responses = quiz.get("user_responses", [])
+    total_questions = len(quiz.get("questions", []))
+
+    # Transform user responses into leaderboard format with detailed information
+    leaderboard_data = []
+    for response in user_responses:
+        score = response.get("score", 0)
+        percentage = round((score / total_questions) * 100) if total_questions > 0 else 0
+        answers = response.get("answers", [])
+        
+        # Calculate correct and incorrect answers
+        correct_answers = sum(1 for ans in answers if ans.get("is_correct", False))
+        incorrect_answers = len(answers) - correct_answers
+        
+        # Calculate time taken
+        time_taken = "N/A"
+        exec_time = quiz.get("exec_time")
+        if exec_time is not None:
+            minutes = int(exec_time // 60)
+            seconds = int(exec_time % 60)
+            time_taken = f"{minutes}m {seconds}s"
+        else:
+            end_time = quiz.get("end_time")
+            start_time = quiz.get("start_time")
+            if end_time is not None and start_time is not None:
+                time_diff = (end_time - start_time).total_seconds()
+                minutes = int(time_diff // 60)
+                seconds = int(time_diff % 60)
+                time_taken = f"{minutes}m {seconds}s"
+
+        # Handle end_time properly
+        end_time = quiz.get("end_time")
+        if end_time is None:
+            end_time = datetime.now(IST).replace(tzinfo=None)
+        else:
+            end_time = end_time.replace(tzinfo=None)
+
+        leaderboard_data.append({
+            "id": str(ObjectId()),  # Generate a unique ID for each entry
+            "name": response.get("name", "Anonymous"),
+            "score": score,
+            "percentage": percentage,
+            "correctAnswers": correct_answers,
+            "incorrectAnswers": incorrect_answers,
+            "timeTaken": time_taken,
+            "attemptedAt": end_time.isoformat(),
+            "answers": answers  # Include detailed answer information
+        })
+
+    # Sort by score (highest first), then by time taken (fastest first)
+    leaderboard_data.sort(key=lambda x: (-x["score"], x["timeTaken"]))
+    return leaderboard_data

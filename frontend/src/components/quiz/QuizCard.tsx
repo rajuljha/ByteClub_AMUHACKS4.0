@@ -52,6 +52,8 @@ const QuizCard = ({ quiz, onDelete }: QuizCardProps) => {
     attemptedAt: new Date().toISOString()
   };
 
+ 
+
   // Sample leaderboard data - this would come from an API in a real app
   const sampleParticipants = [
     {
@@ -305,7 +307,7 @@ const QuizCard = ({ quiz, onDelete }: QuizCardProps) => {
         open={showLeaderboardModal}
         onOpenChange={setShowLeaderboardModal}
         quizName={quiz.name}
-        participants={sampleParticipants}
+        quizId={quiz._id}
       />
       
       {/* Quiz Edit Modal */}
