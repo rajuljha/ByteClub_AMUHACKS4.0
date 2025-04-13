@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import Header from "./Header";
 import CreateQuizModal from "../quiz/CreateQuizModal";
@@ -40,7 +39,7 @@ const Dashboard = ({ user, onLogout }: DashboardProps) => {
         );
 
         console.log("Fetched quizzes:", response.data);
-        setQuizzes(response.data); // Now you can set the quizzes in state
+        setQuizzes(response.data);
       } catch (error) {
         console.error("Error fetching quizzes:", error);
       }
@@ -52,6 +51,10 @@ const Dashboard = ({ user, onLogout }: DashboardProps) => {
 
   const handleQuizCreated = (newQuiz: any) => {
     setQuizzes(prev => [newQuiz, ...prev]);
+  };
+
+  const handleQuizDeleted = (quizId: string) => {
+    setQuizzes(prev => prev.filter(quiz => quiz.id !== quizId));
   };
 
   return (
@@ -73,18 +76,11 @@ const Dashboard = ({ user, onLogout }: DashboardProps) => {
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="all">All Quizzes</TabsTrigger>
-            {/* <TabsTrigger value="recent">Recent</TabsTrigger> */}
           </TabsList>
           
           <TabsContent value="all">
-            <QuizGrid quizzes={quizzes} />
+            <QuizGrid quizzes={quizzes} onDelete={handleQuizDeleted} />
           </TabsContent>
-          
-          {/* <TabsContent value="recent">
-            <QuizGrid 
-              quizzes={quizzes.slice(0, 2)} 
-            />
-          </TabsContent> */}
         </Tabs>
       </main>
 
@@ -94,3 +90,4 @@ const Dashboard = ({ user, onLogout }: DashboardProps) => {
 };
 
 export default Dashboard;
+

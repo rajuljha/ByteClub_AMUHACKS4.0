@@ -1,11 +1,11 @@
-
 import QuizCard from "./QuizCard";
 
 interface QuizGridProps {
   quizzes: any[];
+  onDelete: (quizId: string) => void;  // Accept the onDelete prop
 }
 
-const QuizGrid = ({ quizzes }: QuizGridProps) => {
+const QuizGrid = ({ quizzes,  onDelete}: QuizGridProps) => {
   
   if (quizzes.length === 0) {
     return (
@@ -22,7 +22,7 @@ const QuizGrid = ({ quizzes }: QuizGridProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {quizzes.map((quiz) => (
-        <QuizCard key={quiz.id} quiz={quiz} />
+        <QuizCard key={quiz.id} quiz={quiz} onDelete={onDelete} />
       ))}
     </div>
   );

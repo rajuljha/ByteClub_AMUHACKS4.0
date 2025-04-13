@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShareIcon, Clock, BookOpen, School, Award, Trophy, Pencil } from "lucide-react";
+import { ShareIcon, Clock, BookOpen, School, Award, Trophy, Pencil,  Delete} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -19,23 +18,25 @@ import QuizResultModal from "./QuizResultModal";
 import LeaderboardModal from "./LeaderboardModal";
 import QuizEditModal from "./QuizEditModal";
 import WhatsAppIcon from "/public/whatsapp.png";
+import axios from "axios";
 
 interface QuizCardProps {
   quiz: {
-    id: string;
+    _id: string;
     name: string;
     topic: string;
     difficulty_level: string;
     schoolBoard: string;
     num_questions: string;
-    timeInMinutes: string;
+    exec_time: string;
     password: string;
     created_at: string;
     trigger_link: string;
   };
+  onDelete: (quizId: string) => void; 
 }
 
-const QuizCard = ({ quiz }: QuizCardProps) => {
+const QuizCard = ({ quiz, onDelete }: QuizCardProps) => {
   const [isCopied, setIsCopied] = useState(false);
   const [showResultModal, setShowResultModal] = useState(false);
   const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
@@ -145,6 +146,23 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
     }, 2000);
   };
 
+  const handleDeleteQuiz = async () => {
+    console.log(quiz);
+    
+    console.log("Deleting quiz with ID:", quiz._id);
+    
+    try {
+      const response = await axios.delete(`http://localhost:8000/quiz/quizzes/${quiz._id}`);
+      if (response.status === 200) {
+        toast.success("Quiz deleted successfully!");
+        onDelete(quiz._id); 
+      }
+    } catch (error) {
+      console.error("Error deleting quiz:", error);
+      toast.error("Failed to delete quiz. Please try again.");
+    }
+  };
+
   const handleSaveQuestions = (updatedQuestions: any[]) => {
     // This would normally make an API call to save the updated questions
     console.log("Updated questions:", updatedQuestions);
@@ -175,11 +193,11 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
           </div>
           <div className="flex items-center gap-1 text-muted-foreground">
             <Clock className="h-4 w-4" />
-            <span>{quiz.timeInMinutes} mins</span>
+            <span>{quiz.exec_time} mins</span>
           </div>
           <div className="flex items-center gap-1 text-muted-foreground">
             <Award className="h-4 w-4" />
-            <span>{quiz.num_questions            } questions</span>
+            <span>{quiz.num_questions} questions</span>
           </div>
           <div className="flex items-center gap-1 text-muted-foreground">
             <span>Created: {formatDate(quiz.created_at)}</span>
@@ -263,6 +281,15 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
             <Pencil className="h-4 w-4" />
             View/Edit
           </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleDeleteQuiz}  // Trigger the delete function here
+            className="flex items-center gap-1"
+          >
+            <Delete className="h-8 w-8" />
+          </Button>
         </div>
       </CardFooter>
 
@@ -294,3 +321,4 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
 };
 
 export default QuizCard;
+

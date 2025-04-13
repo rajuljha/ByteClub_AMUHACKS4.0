@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import LoginForm from "@/components/auth/LoginForm";
@@ -6,6 +5,7 @@ import Dashboard from "@/components/layout/Dashboard";
 import { Toaster } from "@/components/ui/sonner";
 import { BookOpen, PenSquare, ListChecks, Trophy, BarChart4, GraduationCap, BookCheck } from "lucide-react";
 import Footer from "@/components/layout/Footer";
+import image from "../../public/quiz(1).png"
 
 
 
@@ -69,8 +69,8 @@ const Index = () => {
           </header>
 
           {/* Hero Section */}
-          <section className="mx-10 py-20 bg-gray-50 h-[410px]">
-            <div className="container px-4 md:px-6 mx-auto">
+          <section className="mx-10 py-2 bg-gray-50 h-[410px]">
+            <div className="container px-3 md:px-6 mx-auto">
               <div className="flex flex-col md:flex-row items-center justify-between gap-12">
                 {/* Left side content */}
                 <div className="max-w-2xl space-y-6">
@@ -89,11 +89,11 @@ const Index = () => {
                 </div>
 
                 {/* Right side image */}
-                <div className="hidden md:block w-full max-w-md">
+                <div className="w-full md:w-[400px] mt-2 md:mt-0">
                   <img 
-                    src="/public/.." 
+                    src={image} 
                     alt="Quiz dashboard" 
-                    className="w-full h-auto"
+                    className="w-[350px] h-[350px] object-contain md:object-cover rounded-lg"
                   />
                 </div>
               </div>
@@ -115,7 +115,7 @@ const Index = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">Create Quizzes</h3>
-                    <p className="text-gray-600">Create customized quizzes tailored to your child's curriculum.</p>
+                    <p className="text-gray-600">Create customized AI tailored quizzes for your child's curriculum.</p>
                   </div>
                 </div>
 
@@ -161,3 +161,4 @@ const Index = () => {
 };
 
 export default Index;
+
