@@ -37,6 +37,8 @@ interface QuizCardProps {
 }
 
 const QuizCard = ({ quiz, onDelete }: QuizCardProps) => {
+  console.log("aarish quiz")
+  console.log(quiz);
   const [isCopied, setIsCopied] = useState(false);
   const [showResultModal, setShowResultModal] = useState(false);
   const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
@@ -165,13 +167,46 @@ const QuizCard = ({ quiz, onDelete }: QuizCardProps) => {
     }
   };
 
-  const handleSaveQuestions = (updatedQuestions: any[]) => {
-    // This would normally make an API call to save the updated questions
-    console.log("Updated questions:", updatedQuestions);
-    // For now we just show a success toast
-    toast.success("Quiz questions updated successfully!");
+  const handleSaveQuestions = async (updatedQuestions: any[]) => {
+    console.log("updatedQuestions", updatedQuestions)
+    try {
+      // Process requests sequentially to maintain order and prevent race conditions
+      for (let index = 0; index < updatedQuestions.length; index++) {
+        const question = updatedQuestions[index];
+        const userInfo = localStorage.getItem("user");
+        const user = JSON.parse(userInfo || "{}");
+        console.log("user", userInfo)
+        // Format request to match the QuestionUpdate model in the backend
+        await axios.put(
+          `http://localhost:8000/quiz/quizzes/${quiz._id}/questions/${index+1}`,
+          {
+            quiz_id: quiz._id,
+            question: question.question,
+            choice_A: question.choice_A,
+            choice_B: question.choice_B,
+            choice_C: question.choice_C,
+            choice_D: question.choice_D,
+            answer: 'A', // Send the correct answer identifier
+            is_correct: true // Assuming all questions being saved are correct
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${user.access_token}`
+            }
+          }
+        );
+      }
+      
+      toast.success("All questions updated successfully!");
+    } catch (error: any) {
+      console.error("Update failed:", error);
+      toast.error(
+        error?.response?.data?.detail || "Failed to update quiz questions."
+      );
+    } 
   };
-
+  
+   
   return (
     <Card className="w-full overflow-hidden transition-all hover:shadow-md">
       <CardHeader className="pb-3">
@@ -315,7 +350,7 @@ const QuizCard = ({ quiz, onDelete }: QuizCardProps) => {
         open={showEditModal}
         onOpenChange={setShowEditModal}
         quizName={quiz.name}
-        questions={sampleQuestions}
+        questions={quiz.questions}
         onSave={handleSaveQuestions}
       />
     </Card>

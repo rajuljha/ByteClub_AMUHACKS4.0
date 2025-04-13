@@ -88,17 +88,32 @@ async def delete_quiz(quiz_id: str):
 
 @router.put("/quizzes/{quiz_id}/questions/{index}")
 async def update_question(quiz_id: str, index: int, question: QuestionUpdate, current_user: dict = Depends(get_current_user)):
+    # Find the quiz
     quiz = await db.quizzes.find_one({"_id": quiz_id})
-
-    if not quiz or index >= len(quiz["questions"]):
-        raise HTTPException(status_code=404, detail="Question not found")
-
-    quiz["questions"][index] = question.dict()
+    
+    # Check if quiz exists
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+    
+    # Check if index is valid
+    if index < 0 or index >= len(quiz["questions"]):
+        raise HTTPException(status_code=404, detail="Question index out of range")
+    
+    # Check if user is the creator of the quiz
+    if quiz["created_by"] != current_user["id"]:
+        raise HTTPException(status_code=403, detail="You don't have permission to update this quiz")
+    
+    # Update question
+    question_data = question.dict(exclude_unset=True)
+    quiz["questions"][index].update(question_data)
+    
+    # Save updated quiz
     await db.quizzes.update_one(
-        {"_id": quiz_id, "quiz.created_by": current_user["id"]},
+        {"_id": quiz_id},
         {"$set": {"questions": quiz["questions"]}}
-        )
-    return quiz
+    )
+    
+    return {"message": "Question updated successfully", "quiz": quiz}
 
 
 @router.post("/quizzes/start/{quiz_id}")
