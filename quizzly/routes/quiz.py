@@ -175,7 +175,13 @@ async def submit_answers(
 
     await db.quizzes.update_one(
         {"_id": quiz_id},
-        {"$push": {"user_responses": user_response}}
+        {
+            "$push": {"user_responses": user_response},
+            "$set": {
+                "is_executed": True,
+                "is_started": False
+            }
+        }
     )
 
     return {
