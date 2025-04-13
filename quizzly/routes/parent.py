@@ -20,7 +20,9 @@ async def register_parent(data: ParentCreate):
     parent_data = Parent(**data.dict())  # Auto-generates the id
     parent_data.password = bcrypt.hashpw(parent_data.password.encode(), bcrypt.gensalt()).decode()
     await db.parents.insert_one(parent_data.model_dump(by_alias=True))
-    return {"message": "Parent registered successfully"}
+    parent = await db.parents.find_one({"username": parent_data.username})
+    token = create_token({"id": str(parent["_id"])})
+    return {"message": "Parent registered successfully", "access_token": token}
 
 
 @router.post("/login")
