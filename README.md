@@ -146,9 +146,8 @@ If all goes well, the app should be live at http://localhost:8080.
 
 ## Screenshots
 
-<div align="center">
-  <img src="./images/homepage.png" alt="ER diagram" width="600px" height="auto"/>
-</div>
+<img width="1440" alt="Screenshot 2025-04-14 at 4 26 57 AM" src="https://github.com/user-attachments/assets/8eb92cf4-7bf4-4c6f-99f7-bfb8c7f9f9b2" />
+
 
 ---
 
