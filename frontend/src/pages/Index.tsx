@@ -48,7 +48,7 @@ const Index = () => {
       {user ? (
         <Dashboard user={user} onLogout={handleLogout} />
       ) : (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col" data-aos="fade-up">
           {/* Navbar */}
           <header className="border-b bg-white">
             <div className="container flex h-16 items-center justify-between px-4 md:px-6">
@@ -69,7 +69,7 @@ const Index = () => {
           </header>
 
           {/* Hero Section */}
-          <section className="mx-10 py-2 bg-gray-50 h-[410px]">
+          <section className="mx-10 py-2 bg-gray-50 h-[410px]" data-aos="fade-up">
             <div className="container px-3 md:px-6 mx-auto">
               <div className="flex flex-col md:flex-row items-center justify-between gap-12">
                 {/* Left side content */}
@@ -101,7 +101,7 @@ const Index = () => {
           </section>
 
           {/* Features Section with purple background */}
-          <section className="py-10 bg-brand-purple">
+          <section className="py-10 bg-brand-purple" data-aos="fade-up">
             <div className="container px-4 md:px-6 mx-auto text-center">
               <h2 className="text-4xl md:text-3xl font-bold text-white mb-5">
                 A learning experience tailored for your child

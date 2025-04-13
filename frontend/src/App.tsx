@@ -5,6 +5,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import QuizPlayerPage from "./pages/QuizPlayerPage";
+import Aos from 'aos';
+import 'aos/dist/aos.css';
+
+Aos.init();
 
 const queryClient = new QueryClient();
 
