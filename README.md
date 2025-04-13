@@ -199,6 +199,13 @@ If all goes well, the app should be live at http://localhost:8080.
 </div>
 
 ---
+
+<div align="center">
+  <img src="./images/leaderboard.png" alt="ER diagram" width="600px" height="auto"/>
+</div>
+
+---
+
 <div height=auto>
 
 <div align="center">
