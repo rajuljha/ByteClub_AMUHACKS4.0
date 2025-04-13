@@ -8,3 +8,5 @@ uvicorn
 pydantic[email]
 pydantic-settings
 PyJWT>=2.0.0
+google-api-python-client
+duckduckgo_search
