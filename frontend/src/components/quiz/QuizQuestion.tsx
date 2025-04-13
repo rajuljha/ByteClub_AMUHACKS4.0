@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,8 +12,12 @@ interface Option {
 
 interface Question {
   id: string;
-  text: string;
-  options: Option[];
+  question: string;
+  choice_A : string;
+  choice_B : string;
+  choice_C : string;
+  choice_D : string;
+  correctOptionId: string;
 }
 
 interface QuizQuestionProps {
@@ -42,6 +45,9 @@ const QuizQuestion = ({
 }: QuizQuestionProps) => {
   const isLastQuestion = currentQuestion === totalQuestions;
 
+  console.log(question);
+  
+
   return (
     <div className="container max-w-2xl mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-4">
@@ -58,17 +64,21 @@ const QuizQuestion = ({
         <CardHeader>
           <CardTitle className="text-lg">
             <span className="mr-2 text-brand-purple font-bold">{currentQuestion}.</span>
-            {question.text}
+            {question.question}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <RadioGroup value={selectedOption || ""} onValueChange={onSelectOption} className="space-y-3">
-            {question.options.map((option) => (
-              <div key={option.id} className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 transition-colors">
-                <RadioGroupItem value={option.id} id={option.id} />
-                <Label htmlFor={option.id} className="flex-1 cursor-pointer">{option.text}</Label>
+              <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 transition-colors">
+                <RadioGroupItem value={question.choice_A} id={question.choice_A} />
+                <Label htmlFor={question.choice_A} className="flex-1 cursor-pointer">{question.choice_A}</Label>
+                <RadioGroupItem value={question.choice_B} id={question.choice_B} />
+                <Label htmlFor={question.choice_B} className="flex-1 cursor-pointer">{question.choice_B}</Label>
+                <RadioGroupItem value={question.choice_C} id={question.choice_C} />
+                <Label htmlFor={question.choice_C} className="flex-1 cursor-pointer">{question.choice_C}</Label>
+                <RadioGroupItem value={question.choice_D} id={question.choice_D} />
+                <Label htmlFor={question.choice_D} className="flex-1 cursor-pointer">{question.choice_D}</Label>
               </div>
-            ))}
           </RadioGroup>
 
           {!selectedOption && (

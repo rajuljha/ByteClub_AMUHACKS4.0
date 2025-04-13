@@ -18,20 +18,20 @@ import { toast } from "@/utils/toast";
 import QuizResultModal from "./QuizResultModal";
 import LeaderboardModal from "./LeaderboardModal";
 import QuizEditModal from "./QuizEditModal";
-import WhatsAppIcon from "../../../public/whatsapp.png";
+import WhatsAppIcon from "/public/whatsapp.png";
 
 interface QuizCardProps {
   quiz: {
     id: string;
     name: string;
     topic: string;
-    class: string;
+    difficulty_level: string;
     schoolBoard: string;
-    numberOfQuestions: string;
+    num_questions: string;
     timeInMinutes: string;
     password: string;
-    createdAt: string;
-    shareLink: string;
+    created_at: string;
+    trigger_link: string;
   };
 }
 
@@ -44,9 +44,9 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
   // This would normally come from an API, this is sample data
   const sampleResult = {
     quizName: quiz.name,
-    totalQuestions: parseInt(quiz.numberOfQuestions),
-    correctAnswers: Math.floor(parseInt(quiz.numberOfQuestions) * 0.7), // 70% correct for demo
-    incorrectAnswers: Math.ceil(parseInt(quiz.numberOfQuestions) * 0.3),
+    totalQuestions: parseInt(quiz.num_questions),
+    correctAnswers: Math.floor(parseInt(quiz.num_questions) * 0.7), // 70% correct for demo
+    incorrectAnswers: Math.ceil(parseInt(quiz.num_questions) * 0.3),
     timeTaken: "8m 45s",
     attemptedAt: new Date().toISOString()
   };
@@ -137,7 +137,7 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(`${quiz.shareLink}?pwd=${encodeURIComponent(quiz.password)}`);
+    navigator.clipboard.writeText(`${quiz.trigger_link}}`);
     setIsCopied(true);
     toast.success("Link copied to clipboard!");
     setTimeout(() => {
@@ -171,7 +171,7 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
         <div className="grid grid-cols-2 gap-2 text-sm mb-2">
           <div className="flex items-center gap-1 text-muted-foreground">
             <School className="h-4 w-4" />
-            <span>Grade {quiz.class}</span>
+            <span>Grade {quiz.difficulty_level}</span>
           </div>
           <div className="flex items-center gap-1 text-muted-foreground">
             <Clock className="h-4 w-4" />
@@ -179,10 +179,10 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
           </div>
           <div className="flex items-center gap-1 text-muted-foreground">
             <Award className="h-4 w-4" />
-            <span>{quiz.numberOfQuestions} questions</span>
+            <span>{quiz.num_questions            } questions</span>
           </div>
           <div className="flex items-center gap-1 text-muted-foreground">
-            <span>Created: {formatDate(quiz.createdAt)}</span>
+            <span>Created: {formatDate(quiz.created_at)}</span>
           </div>
         </div>
       </CardContent>
@@ -207,7 +207,7 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
                 <div className="flex items-center gap-2">
                   <Input
                     id="link"
-                    value={`${quiz.shareLink}?pwd=${encodeURIComponent(quiz.password)}`}
+                    value={`${quiz.trigger_link}?pwd=${encodeURIComponent(quiz.password)}`}
                     readOnly
                   />
                   <Button
@@ -218,7 +218,7 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
                   >
                     {isCopied ? "Copied!" : "Copy"}
                   </Button>
-                  <a href={`https://api.whatsapp.com/send?text=${quiz.shareLink}?pwd=${encodeURIComponent(quiz.password)}`} data-action="share/whatsapp/share" target="_blank"  // This will open the link in a new tab
+                  <a href={`https://api.whatsapp.com/send?text=${quiz.trigger_link}?pwd=${encodeURIComponent(quiz.password)}`} data-action="share/whatsapp/share" target="_blank"  // This will open the link in a new tab
                     rel="noopener noreferrer">
                     <img src={WhatsAppIcon} alt="Share on WhatsApp" className="h-10 w-10 object-contain" />
 
@@ -252,14 +252,6 @@ const QuizCard = ({ quiz }: QuizCardProps) => {
           >
             <Trophy className="h-4 w-4" />
             Leaderboard
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowResultModal(true)}
-          >
-            View Results
           </Button>
           
           <Button

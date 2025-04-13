@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import axios from "axios"; 
 import { 
   Dialog, 
   DialogContent, 
@@ -35,7 +35,6 @@ const CreateQuizModal = ({ onQuizCreated }: CreateQuizModalProps) => {
     schoolBoard: "",
     numberOfQuestions: "10",
     timeInMinutes: "15",
-    password: ""
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,23 +46,45 @@ const CreateQuizModal = ({ onQuizCreated }: CreateQuizModalProps) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // In a real app, you would send this data to your backend
-    setTimeout(() => {
-      const newQuiz = {
-        id: `quiz_${Date.now()}`,
-        ...formData,
-        createdAt: new Date().toISOString(),
-        shareLink: `https://parent-quiz-hub.example/quiz/${Date.now()}`
-      };
+    // Prepare the data for submission
+    const quizData = {
+      name: formData.name,
+      subject: formData.topic,
+      num_questions: parseInt(formData.numberOfQuestions),
+      topic: formData.topic,
+      difficulty_level: parseInt(formData.class), 
+      exec_time: parseInt(formData.timeInMinutes),
+    };
+
+    try {
       
+      const userInfo = localStorage.getItem("user");
+      const user = JSON.parse(userInfo);
+      const token = user.access_token;
+
+      const response = await axios.post(
+        "http://localhost:8000/quiz/quizzes/create",
+        quizData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          },
+        }
+      );
+      
+      const newQuiz = response.data;
+
+      // Handle the response
       onQuizCreated(newQuiz);
       toast.success("Quiz created successfully!");
       setIsLoading(false);
       setOpen(false);
+
+      // Reset form data
       setFormData({
         name: "",
         topic: "",
@@ -71,9 +92,12 @@ const CreateQuizModal = ({ onQuizCreated }: CreateQuizModalProps) => {
         schoolBoard: "",
         numberOfQuestions: "10",
         timeInMinutes: "15",
-        password: ""
       });
-    }, 1000);
+    } catch (error) {
+      console.error("Error creating quiz:", error);
+      toast.error("Failed to create quiz. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -194,22 +218,6 @@ const CreateQuizModal = ({ onQuizCreated }: CreateQuizModalProps) => {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="password">Quiz Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Create a password for this quiz"
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                This password will be required to access the quiz.
-              </p>
             </div>
           </div>
           

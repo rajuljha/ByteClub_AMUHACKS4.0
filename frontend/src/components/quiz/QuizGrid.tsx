@@ -6,6 +6,7 @@ interface QuizGridProps {
 }
 
 const QuizGrid = ({ quizzes }: QuizGridProps) => {
+  
   if (quizzes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-10 bg-gray-50 rounded-lg border border-dashed">
@@ -16,6 +17,7 @@ const QuizGrid = ({ quizzes }: QuizGridProps) => {
       </div>
     );
   }
+  
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -1,39 +1,65 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Lock, KeyRound } from "lucide-react";
+import { Lock, KeyRound, Eye, EyeOff } from "lucide-react"; // Importing eye icons for visibility toggle
 import { toast } from "@/utils/toast";
+import axios from "axios";
 
 interface QuizPasswordProps {
+  quizId: string;
   quizName: string;
   password: string;
   onPasswordVerified: () => void;
 }
 
-const QuizPassword = ({ quizName, password, onPasswordVerified }: QuizPasswordProps) => {
+const QuizPassword = ({ quizId, quizName, password, onPasswordVerified }: QuizPasswordProps) => {
   const [enteredPassword, setEnteredPassword] = useState("");
+  const [enteredName, setEnteredName] = useState(""); 
   const [isChecking, setIsChecking] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
-  const handleVerifyPassword = () => {
+  const handleVerifyPassword = async () => {
     setIsChecking(true);
+
+    console.log(quizId, password);
     
-    // Simulate verification delay
-    setTimeout(() => {
-      if (enteredPassword === password) {
-        onPasswordVerified();
-      } else {
-        toast.error("Incorrect password. Please try again.");
+    if (enteredPassword == password) {
+      try {
+        const response = await axios.post(
+          `http://localhost:8000/quiz/quizzes/start/${quizId}`,
+          {
+            password: enteredPassword,
+            name: enteredName,
+          }
+        );
+
+        console.log(response);
+        
+
+        if (response.status === 200) {
+          toast.success("Quiz started successfully!");
+          onPasswordVerified();
+        }
+      } catch (error) {
+        console.error("Error starting the quiz:", error);
+        toast.error("Failed to start the quiz. Please try again.");
       }
-      setIsChecking(false);
-    }, 500);
+    } else {
+      toast.error("Incorrect password. Please try again.");
+    }
+
+    setIsChecking(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleVerifyPassword();
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
   };
 
   return (
@@ -52,21 +78,45 @@ const QuizPassword = ({ quizName, password, onPasswordVerified }: QuizPasswordPr
             </div>
           </div>
           <div className="space-y-2">
+            {/* Name input field */}
             <Input
-              type="password"
-              placeholder="Enter quiz password"
-              value={enteredPassword}
-              onChange={(e) => setEnteredPassword(e.target.value)}
+              type="text"
+              placeholder="Enter your name"
+              value={enteredName}
+              onChange={(e) => setEnteredName(e.target.value)}
               onKeyDown={handleKeyDown}
               className="border-gray-300"
             />
+            {/* Password input field */}
+            <div className="relative">
+              <Input
+                type={passwordVisible ? "text" : "password"} 
+                placeholder="Enter quiz password"
+                value={enteredPassword}
+                onChange={(e) => setEnteredPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="border-gray-300 pr-10"
+              />
+              {/* Eye icon to toggle password visibility */}
+              <Button
+                type="button"
+                className="absolute right-1 top-0.5 text-gray-600"
+                onClick={togglePasswordVisibility}
+              >
+                {passwordVisible ? (
+                  <EyeOff className="h-3 w-3" />
+                ) : (
+                  <Eye className="h-3 w-3" />
+                )}
+              </Button>
+            </div>
           </div>
         </CardContent>
         <CardFooter>
-          <Button 
-            className="w-full bg-brand-purple hover:bg-purple-600 flex gap-2 items-center" 
+          <Button
+            className="w-full bg-brand-purple hover:bg-purple-600 flex gap-2 items-center"
             onClick={handleVerifyPassword}
-            disabled={isChecking || !enteredPassword}
+            disabled={isChecking || !enteredPassword || !enteredName} 
           >
             {isChecking ? (
               <>

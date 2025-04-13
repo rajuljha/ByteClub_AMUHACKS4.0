@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "./Header";
 import CreateQuizModal from "../quiz/CreateQuizModal";
 import QuizGrid from "../quiz/QuizGrid";
@@ -10,6 +10,7 @@ import {
   TabsTrigger 
 } from "@/components/ui/tabs";
 import Footer from "./Footer";
+import axios from "axios";
 
 interface DashboardProps {
   user: any;
@@ -18,6 +19,36 @@ interface DashboardProps {
 
 const Dashboard = ({ user, onLogout }: DashboardProps) => {
   const [quizzes, setQuizzes] = useState<any[]>([]);
+
+  useEffect(() => {
+    
+    const fetchQuizzes = async () => {
+      try {
+        const userInfo = localStorage.getItem("user");
+        const user = JSON.parse(userInfo);
+        console.log(user);
+        
+        const token = user.access_token;
+
+        const response = await axios.get(
+          "http://localhost:8000/quiz/quizzes/",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, 
+            },
+          }
+        );
+
+        console.log("Fetched quizzes:", response.data);
+        setQuizzes(response.data); // Now you can set the quizzes in state
+      } catch (error) {
+        console.error("Error fetching quizzes:", error);
+      }
+    };
+
+    fetchQuizzes(); 
+  }, []); 
+  
 
   const handleQuizCreated = (newQuiz: any) => {
     setQuizzes(prev => [newQuiz, ...prev]);
@@ -42,23 +73,16 @@ const Dashboard = ({ user, onLogout }: DashboardProps) => {
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="all">All Quizzes</TabsTrigger>
-            <TabsTrigger value="recent">Recent</TabsTrigger>
-            {/* <TabsTrigger value="shared">Shared</TabsTrigger> */}
+            {/* <TabsTrigger value="recent">Recent</TabsTrigger> */}
           </TabsList>
           
           <TabsContent value="all">
             <QuizGrid quizzes={quizzes} />
           </TabsContent>
           
-          <TabsContent value="recent">
+          {/* <TabsContent value="recent">
             <QuizGrid 
               quizzes={quizzes.slice(0, 2)} 
-            />
-          </TabsContent>
-          
-          {/* <TabsContent value="shared">
-            <QuizGrid 
-              quizzes={quizzes.filter(quiz => quiz.shared)} 
             />
           </TabsContent> */}
         </Tabs>
