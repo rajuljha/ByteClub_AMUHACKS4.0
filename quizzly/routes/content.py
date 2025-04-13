@@ -13,7 +13,7 @@ class TopicsRequest(BaseModel):
     topics: List[str]
     num_results: int = 5
 
-@router.get("/articles")
+@router.post("/articles")
 async def get_articles(request: TopicsRequest):
     """
     Get articles based on provided topics using DuckDuckGo search
@@ -34,7 +34,7 @@ async def get_articles(request: TopicsRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/youtube")
+@router.post("/youtube")
 async def get_youtube_videos(request: TopicsRequest):
     """
     Get YouTube videos with thumbnails based on provided topics
