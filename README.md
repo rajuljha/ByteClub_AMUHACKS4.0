@@ -48,7 +48,7 @@ Whether it's basic math, science concepts, or general knowledge, Quizzly brings 
 
 ---
 
-## Demo Video and Photos
+## Demo Video
 
 
 
@@ -144,6 +144,75 @@ If all goes well, the app should be live at http://localhost:8080.
 - Deployment: Dockerized backend, Render-friendly, ENV-variable support
 - Extras: AI suggestions, RESTful APIs, analytics dashboard, real-time feedback
 
+## Screenshots
+
+<div align="center">
+  <img src="./images/homepage.png" alt="ER diagram" width="600px" height="auto"/>
+</div>
+
+---
+
+<div align="center">
+  <img src="./images/login.png" alt="ER diagram" width="600px" height="auto"/>
+</div>
+
+---
+
+<div align="center">
+  <img src="./images/dashboard.png" alt="ER diagram" width="600px" height="auto"/>
+</div>
+
+---
+
+<div align="center">
+  <img src="./images/create_quiz.png" alt="ER diagram" width="600px" height="auto"/>
+</div>
+
+---
+
+<div align="center">
+  <img src="./images/share_quiz.png" alt="ER diagram" width="600px" height="auto"/>
+</div>
+
+---
+
+<div align="center">
+  <img src="./images/take_quiz2.png" alt="ER diagram" width="600px" height="auto"/>
+</div>
+
+---
+
+<div align="center">
+  <img src="./images/instructions.png" alt="ER diagram" width="600px" height="auto"/>
+</div>
+
+---
+
+<div align="center">
+  <img src="./images/ques2.png" alt="ER diagram" width="600px" height="auto"/>
+</div>
+
+---
+
+<div align="center">
+  <img src="./images/submit.png" alt="ER diagram" width="600px" height="auto"/>
+</div>
+
+---
+<div height=auto>
+
+<div align="center">
+  <img src="./images/analytics.png" alt="ER diagram" width="600px" height="auto"/>
+</div>
+
+<div align="center">
+  <img src="./images/videos.png" alt="ER diagram" width="600px" height="auto"/>
+</div>
+
+<div align="center">
+  <img src="./images/articles.png" alt="ER diagram" width="600px" height="auto"/>
+</div>
+</div>
 
 ## Cost Analysis
 
