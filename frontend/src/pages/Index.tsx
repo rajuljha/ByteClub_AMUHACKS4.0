@@ -75,10 +75,10 @@ const Index = () => {
                 {/* Left side content */}
                 <div className="max-w-2xl space-y-6">
                   <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900">
-                    Your Quiz Creator
+                  Learning Made Simple
                   </h1>
                   <p className="text-xl text-gray-600">
-                    Simplify quiz creation with powerful and easy-to-use AI tools designed for your child's learning journey.
+                  Empower your child's learning with personalized quizzes, easily crafted using intuitive AI tools that adapt to their needs.
                   </p>
                   <Button 
                     className="bg-brand-purple hover:bg-purple-600 text-white px-8 py-6 text-lg rounded-full shadow-lg"
@@ -107,7 +107,7 @@ const Index = () => {
                 A learning experience tailored for your child
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mx-auto">
                 {/* Feature 1 */}
                 <div className="bg-white rounded-xl p-8 flex items-start gap-6 text-left shadow-lg">
                   <div className="bg-brand-lightPurple p-3 rounded-lg">
@@ -127,6 +127,17 @@ const Index = () => {
                   <div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">Track Progress</h3>
                     <p className="text-gray-600">Visualize your child's learning progress with intuitive analytics.</p>
+                  </div>
+                </div>
+
+
+                <div className="bg-white rounded-xl p-8 flex items-start gap-6 text-left shadow-lg">
+                  <div className="bg-brand-lightPurple p-3 rounded-lg">
+                  <BookCheck size={32} className="text-brand-purple" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Targeted Improvement</h3>
+                    <p className="text-gray-600">Receive personalized resources for articles and videos</p>
                   </div>
                 </div>
               </div>
