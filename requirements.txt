@@ -1,6 +1,9 @@
 fastapi[all]
 motor               ~=3.3
 uvicorn             ~=0.28
+fastapi~=0.110
+motor~=3.3
+uvicorn~=0.28
 python-jose
 python-dotenv
 passlib[bcrypt]
@@ -10,3 +13,5 @@ pydantic-settings
 PyJWT>=2.0.0
 google-api-python-client
 duckduckgo_search
+pytz==2025.2
+requests

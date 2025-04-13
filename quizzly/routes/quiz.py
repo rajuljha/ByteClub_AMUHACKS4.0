@@ -60,7 +60,10 @@ async def create_quiz(data: QuizCreate, current_user: dict = Depends(get_current
 
 @router.get("/quizzes")
 async def get_quizzes():
-    return await db.quizzes.find().to_list(100)
+    quizzes = await db.quizzes.find().to_list(100)
+    for quiz in quizzes:
+        quiz["_id"] = str(quiz["_id"])
+    return quizzes
 
 
 @router.get("/quizzes/{quiz_id}")
@@ -73,13 +76,13 @@ async def get_quiz(quiz_id: str):
 
 @router.put("/quizzes/{quiz_id}")
 async def update_quiz(quiz_id: str, quiz: Quiz):
-    await db.quizzes.update_one({"_id": ObjectId(quiz_id)}, {"$set": quiz.dict(by_alias=True)})
-    return await db.quizzes.find_one({"_id": ObjectId(quiz_id)})
+    await db.quizzes.update_one({"_id": quiz_id}, {"$set": quiz.dict(by_alias=True)})
+    return await db.quizzes.find_one({"_id": quiz_id})
 
 
 @router.delete("/quizzes/{quiz_id}")
 async def delete_quiz(quiz_id: str):
-    await db.quizzes.delete_one({"_id": ObjectId(quiz_id)})
+    await db.quizzes.delete_one({"_id": quiz_id})
     return {"msg": "Quiz deleted"}
 
 
@@ -195,6 +198,8 @@ async def end_quiz(quiz_id: str, request: EndQuizRequest):
         raise HTTPException(status_code=400, detail="Quiz already ended")
 
     user_responses = quiz.get("user_responses", [])
+    user_scores = [{"name": user.get("name"), "score": user.get("score", 0)} for user in user_responses ]
+
     user_response_entry = next(
         (resp for resp in user_responses if resp["name"] == request.name),
         None
@@ -224,6 +229,10 @@ async def end_quiz(quiz_id: str, request: EndQuizRequest):
 
     score = len(right_questions)
     num_wrong = len(wrong_questions)
+    end_time = datetime.now(pytz.timezone("Asia/Kolkata")).replace(tzinfo=None)
+    start_time = quiz.get("start_time")
+    exec_time = (end_time - start_time).total_seconds() if start_time else 0
+    exec_time = round(exec_time, 2)
 
     await db.quizzes.update_one(
         {"_id": quiz_id, "user_responses.name": request.name},
@@ -231,7 +240,8 @@ async def end_quiz(quiz_id: str, request: EndQuizRequest):
             "$set": {
                 "is_executed": True,
                 "is_started": False,
-                "end_time": datetime.now(pytz.timezone("Asia/Kolkata")).replace(tzinfo=None),
+                "end_time": end_time,
+                "exec_time": exec_time,
                 "user_responses.$.score": score
             }
         }
@@ -239,6 +249,8 @@ async def end_quiz(quiz_id: str, request: EndQuizRequest):
 
     return {
         "message": "Quiz ended",
+        "user_scores": user_scores,
+        "exec_time": exec_time,
         "score": score,
         "number_of_wrong_answers": num_wrong,
         "right_questions": right_questions,

@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: str
     GEMINI_API_KEY: str
     YOUTUBE_API_KEY: str
+    CORS_ORIGINS: str
 
     class Config:
         env_file = ".env"
