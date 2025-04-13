@@ -9,8 +9,18 @@ import pytz
 IST = pytz.timezone("Asia/Kolkata")
 
 
+class EndQuizRequest(BaseModel):
+    name: str
+
+
 class QuizStart(BaseModel):
     password: int
+    name: str
+
+
+class AnswerSubmission(BaseModel):
+    name: str
+    answers: List[str]
 
 
 # Question model to represent individual question details
@@ -35,6 +45,16 @@ class QuizCreate(BaseModel):
     difficulty_level: int
 
 
+class QuestionUpdate(BaseModel):
+    question: str
+    choice_A: str
+    choice_B: str
+    choice_C: str
+    choice_D: str
+    answer: str
+    is_correct: bool
+
+
 # Main Quiz model – includes fields auto-populated by backend
 class Quiz(BaseModel):
     id: str = Field(default_factory=lambda: str(ObjectId()), alias="_id")
@@ -44,6 +64,7 @@ class Quiz(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now(IST))
     metadata_fields: Optional[dict] = Field(default_factory=dict)
     trigger_link: HttpUrl
+    taken_by: List[str]
     num_questions: int
     questions: List[Question]
     user_responses: List[dict]

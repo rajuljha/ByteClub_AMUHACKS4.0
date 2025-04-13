@@ -2,14 +2,19 @@
 import pytz
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
-from quizzly.models.quiz import Quiz, QuizCreate, QuizStart
+from quizzly.models.quiz import (
+    Quiz,
+    QuizCreate,
+    QuizStart,
+    AnswerSubmission,
+    EndQuizRequest,
+    QuestionUpdate
+)
 from quizzly.db.mongodb import db
 from quizzly.utils.jwt import get_current_user
 from quizzly.utils.gemini import generate_questions
 from bson import ObjectId
 import random
-from typing import List
-from fastapi import Body
 from quizzly.core.config import settings
 
 IST = pytz.timezone("Asia/Kolkata")
@@ -26,7 +31,6 @@ async def create_quiz(data: QuizCreate, current_user: dict = Depends(get_current
     topic = data.topic
     difficulty_level = data.difficulty_level
     questions = generate_questions(subject, topic, num_questions, difficulty_level)
-    breakpoint()
     if not questions:
         raise HTTPException(status_code=500, detail="Failed to generate questions")
     quiz_doc = {
@@ -37,6 +41,7 @@ async def create_quiz(data: QuizCreate, current_user: dict = Depends(get_current
         "num_questions": num_questions,
         "questions": questions,
         "user_responses": [],
+        "taken_by": [],
         "topic": data.topic,
         "difficulty_level": data.difficulty_level,
         "created_by": current_user["id"],
@@ -79,12 +84,17 @@ async def delete_quiz(quiz_id: str):
 
 
 @router.put("/quizzes/{quiz_id}/questions/{index}")
-async def update_question(quiz_id: str, index: int, question: dict):
-    quiz = await db.quizzes.find_one({"_id": ObjectId(quiz_id)})
+async def update_question(quiz_id: str, index: int, question: QuestionUpdate, current_user: dict = Depends(get_current_user)):
+    quiz = await db.quizzes.find_one({"_id": quiz_id})
+
     if not quiz or index >= len(quiz["questions"]):
         raise HTTPException(status_code=404, detail="Question not found")
-    quiz["questions"][index] = question
-    await db.quizzes.update_one({"_id": ObjectId(quiz_id)}, {"$set": {"questions": quiz["questions"]}})
+
+    quiz["questions"][index] = question.dict()
+    await db.quizzes.update_one(
+        {"_id": quiz_id, "quiz.created_by": current_user["id"]},
+        {"$set": {"questions": quiz["questions"]}}
+        )
     return quiz
 
 
@@ -103,7 +113,14 @@ async def start_quiz(quiz_id: str, request: QuizStart):
     start_time = datetime.now(pytz.timezone("Asia/Kolkata")).replace(tzinfo=None)
     await db.quizzes.update_one(
         {"_id": quiz_id},
-        {"$set": {"is_started": True, "start_time": start_time}}
+        {
+            "$set": {
+                "is_started": True,
+                "start_time": start_time,
+                "is_executed": False
+                },
+            "$addToSet": {"taken_by": request.name}
+        }
     )
 
     quiz["start_time"] = start_time
@@ -114,8 +131,7 @@ async def start_quiz(quiz_id: str, request: QuizStart):
 @router.post("/quizzes/{quiz_id}/submit_answers")
 async def submit_answers(
     quiz_id: str,
-    answers: List[str] = Body(...),
-    current_user: dict = Depends(get_current_user)
+    submission: AnswerSubmission
 ):
     quiz = await db.quizzes.find_one({"_id": quiz_id})
     if not quiz:
@@ -124,15 +140,21 @@ async def submit_answers(
     if not quiz.get("is_started", False):
         raise HTTPException(status_code=400, detail="Quiz not started yet")
 
+    if submission.name not in quiz.get("taken_by", []):
+        raise HTTPException(status_code=403, detail="User not registered for this quiz")
+
     questions = quiz["questions"]
-    if len(answers) != len(questions):
+    if len(submission.answers) != len(questions):
         raise HTTPException(status_code=400, detail="Number of answers does not match questions")
 
-    # Compute score and build answer report
-    score = 0
-    evaluated_answers = []
+    # Check if user has already submitted
+    if any(resp["name"] == submission.name for resp in quiz.get("user_responses", [])):
+        raise HTTPException(status_code=400, detail="Answers already submitted")
 
-    for i, user_ans in enumerate(answers):
+    # Evaluate answers
+    evaluated_answers = []
+    score = 0
+    for i, user_ans in enumerate(submission.answers):
         correct = questions[i]["answer"] == user_ans
         evaluated_answers.append({
             "question_index": i,
@@ -142,14 +164,12 @@ async def submit_answers(
         if correct:
             score += 1
 
-    # Prepare user response
     user_response = {
-        "user_id": current_user["id"],
+        "name": submission.name,
         "answers": evaluated_answers,
         "score": score
     }
 
-    # Update quiz's user_responses list
     await db.quizzes.update_one(
         {"_id": quiz_id},
         {"$push": {"user_responses": user_response}}
@@ -163,7 +183,7 @@ async def submit_answers(
 
 
 @router.post("/quizzes/{quiz_id}/end")
-async def end_quiz(quiz_id: str, current_user: dict = Depends(get_current_user)):
+async def end_quiz(quiz_id: str, request: EndQuizRequest):
     quiz = await db.quizzes.find_one({"_id": quiz_id})
     if not quiz:
         raise HTTPException(status_code=404, detail="Quiz not found")
@@ -174,26 +194,53 @@ async def end_quiz(quiz_id: str, current_user: dict = Depends(get_current_user))
     if quiz.get("is_executed", False):
         raise HTTPException(status_code=400, detail="Quiz already ended")
 
-    user_responses_list = quiz.get("user_responses", [])
+    user_responses = quiz.get("user_responses", [])
     user_response_entry = next(
-        (resp for resp in user_responses_list if resp["user_id"] == current_user["id"]),
+        (resp for resp in user_responses if resp["name"] == request.name),
         None
     )
 
     if not user_response_entry:
         raise HTTPException(status_code=400, detail="No responses found for this user")
-    score = sum(1 for resp in user_response_entry["answers"] if resp.get("is_correct"))
 
-    # Optionally update score in DB
+    questions = quiz.get("questions", [])
+    wrong_questions = []
+    right_questions = []
+
+    for ans in user_response_entry["answers"]:
+        q_idx = ans["question_index"]
+        question = questions[q_idx].get("question")
+        correct_answer = questions[q_idx].get("answer")
+        entry = {
+            "question_index": q_idx,
+            "question": question,
+            "your_answer": ans.get("answer"),
+            "correct_answer": correct_answer
+        }
+        if ans.get("is_correct"):
+            right_questions.append(entry)
+        else:
+            wrong_questions.append(entry)
+
+    score = len(right_questions)
+    num_wrong = len(wrong_questions)
+
     await db.quizzes.update_one(
-        {"_id": quiz_id, "user_responses.user_id": current_user["id"]},
+        {"_id": quiz_id, "user_responses.name": request.name},
         {
             "$set": {
                 "is_executed": True,
-                "end_time": datetime.utcnow(),
+                "is_started": False,
+                "end_time": datetime.now(pytz.timezone("Asia/Kolkata")).replace(tzinfo=None),
                 "user_responses.$.score": score
             }
         }
     )
 
-    return {"message": "Quiz ended", "score": score}
+    return {
+        "message": "Quiz ended",
+        "score": score,
+        "number_of_wrong_answers": num_wrong,
+        "right_questions": right_questions,
+        "wrong_questions": wrong_questions
+    }
