@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import LoginForm from "@/components/auth/LoginForm";
 import Dashboard from "@/components/layout/Dashboard";
 import { Toaster } from "@/components/ui/sonner";
-import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 import { BookOpen, PenSquare, ListChecks, Trophy, BarChart4, GraduationCap, BookCheck } from "lucide-react";
 import Footer from "@/components/layout/Footer";
 
@@ -30,6 +29,7 @@ const Index = () => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("user");
     setUser(null);
   };
 

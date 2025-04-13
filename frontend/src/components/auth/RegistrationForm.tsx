@@ -1,9 +1,11 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/utils/toast";
+import axios from "axios";
+import { api } from "@/api";
+
 
 interface RegistrationFormProps {
   onSuccess: (userData: any) => void;
@@ -17,11 +19,10 @@ const RegistrationForm = ({ onSuccess, switchToLogin }: RegistrationFormProps) =
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simple validation
     if (!name || !email || !password) {
       toast.error("Please fill in all fields");
       setIsLoading(false);
@@ -34,20 +35,36 @@ const RegistrationForm = ({ onSuccess, switchToLogin }: RegistrationFormProps) =
       return;
     }
     
-    // This is a mock implementation - in a real app we would connect to a backend
-    setTimeout(() => {
-      const mockUserData = {
-        id: `user_${Math.random().toString(36).substring(2, 9)}`,
-        name: name,
-        email: email,
-        picture: `https://i.pravatar.cc/150?u=${email}`
-      };
-      
-      localStorage.setItem("user", JSON.stringify(mockUserData));
-      onSuccess(mockUserData);
-      toast.success("Registration successful!");
+    try {
+      const response = await api.post('/parent/register', {
+        username: email,
+        password: password,
+        name: name
+      });
+
+      console.log(response);
+
+      if (response.status === 200) {
+        const userData = {
+          name: name,
+          email: email,
+          access_token: response.data.access_token,
+        };
+        
+        localStorage.setItem("user", JSON.stringify(userData));
+        onSuccess(userData);
+        toast.success("Registration successful!");
+      }
+    } catch (error: any) {
+      if (error.response?.status === 422) {
+        const errorMessage = error.response.data.detail[0]?.msg || "Validation error occurred";
+        toast.error(errorMessage);
+      } else {
+        toast.error("Registration failed. Please try again.");
+      }
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

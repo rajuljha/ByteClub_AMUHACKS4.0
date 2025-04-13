@@ -14,7 +14,7 @@ import { toast } from "@/utils/toast";
 
 interface HeaderProps {
   user: any;
-  onLogout: () => void;
+  onLogout: () => {};
 }
 
 const Header = ({ user, onLogout }: HeaderProps) => {
