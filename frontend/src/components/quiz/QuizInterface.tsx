@@ -7,6 +7,7 @@ import QuizResultModal from "./QuizResultModal";
 import { toast } from "@/utils/toast";
 import { Button } from "../ui/button";
 import axios from "axios";
+import { api } from "@/api";
 
 interface Option {
   id: string;
@@ -68,7 +69,7 @@ const QuizInterface = () => {
   useEffect(() => {
     const fetchQuizData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/quiz/quizzes/${quizId}`);
+        const response = await api.get(`/quiz/quizzes/${quizId}`);
 
         // Set the quiz data
         setQuiz(response.data);
@@ -133,8 +134,8 @@ const QuizInterface = () => {
   
     try {
       
-      const response = await axios.post(
-        `http://localhost:8000/quiz/quizzes/${quizId}/submit_answers`,
+      const response = await api.post(
+        `/quiz/quizzes/${quizId}/submit_answers`,
         {
           name: userName, 
           answers: evaluatedAnswers, 

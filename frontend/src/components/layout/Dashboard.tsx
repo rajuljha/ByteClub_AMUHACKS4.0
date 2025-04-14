@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/tabs";
 import Footer from "./Footer";
 import axios from "axios";
+import { api } from "@/api";
 
 interface DashboardProps {
   user: any;
@@ -29,8 +30,17 @@ const Dashboard = ({ user, onLogout }: DashboardProps) => {
         
         const token = user.access_token;
 
-        const response = await axios.get(
-          "http://localhost:8000/quiz/quizzes/",
+        // const response = await api.get(
+        //   "http://localhost:8000/quiz/quizzes/",
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${token}`, 
+        //     },
+        //   }
+        // );
+
+        const response = await api.get(
+          "/quiz/quizzes/",
           {
             headers: {
               Authorization: `Bearer ${token}`, 

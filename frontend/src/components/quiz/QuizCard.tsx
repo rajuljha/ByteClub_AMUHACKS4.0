@@ -19,6 +19,7 @@ import LeaderboardModal from "./LeaderboardModal";
 import QuizEditModal from "./QuizEditModal";
 import WhatsAppIcon from "/public/whatsapp.png";
 import axios from "axios";
+import { api } from "@/api";
 
 interface QuizCardProps {
   quiz: {
@@ -156,7 +157,7 @@ const QuizCard = ({ quiz, onDelete }: QuizCardProps) => {
     console.log("Deleting quiz with ID:", quiz._id);
     
     try {
-      const response = await axios.delete(`http://localhost:8000/quiz/quizzes/${quiz._id}`);
+      const response = await api.delete(`/quiz/quizzes/${quiz._id}`);
       if (response.status === 200) {
         toast.success("Quiz deleted successfully!");
         onDelete(quiz._id); 
@@ -177,8 +178,8 @@ const QuizCard = ({ quiz, onDelete }: QuizCardProps) => {
         const user = JSON.parse(userInfo || "{}");
         console.log("user", userInfo)
         // Format request to match the QuestionUpdate model in the backend
-        await axios.put(
-          `http://localhost:8000/quiz/quizzes/${quiz._id}/questions/${index+1}`,
+        await api.put(
+          `/quiz/quizzes/${quiz._id}/questions/${index+1}`,
           {
             quiz_id: quiz._id,
             question: question.question,

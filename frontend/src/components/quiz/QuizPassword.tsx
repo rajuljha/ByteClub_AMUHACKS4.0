@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Lock, KeyRound, Eye, EyeOff } from "lucide-react"; // Importing eye icons for visibility toggle
 import { toast } from "@/utils/toast";
 import axios from "axios";
+import { api } from "@/api";
 
 interface QuizPasswordProps {
   quizId: string;
@@ -27,8 +28,8 @@ const QuizPassword = ({ quizId, quizName, password, onPasswordVerified }: QuizPa
     
     if (enteredPassword == password) {
       try {
-        const response = await axios.post(
-          `http://localhost:8000/quiz/quizzes/start/${quizId}`,
+        const response = await api.post(
+          `/quiz/quizzes/start/${quizId}`,
           {
             password: enteredPassword,
             name: enteredName,

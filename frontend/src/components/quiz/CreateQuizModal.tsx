@@ -20,6 +20,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { toast } from "@/utils/toast";
+import { api } from "@/api";
 
 interface CreateQuizModalProps {
   onQuizCreated: (quizData: any) => void;
@@ -66,8 +67,8 @@ const CreateQuizModal = ({ onQuizCreated }: CreateQuizModalProps) => {
       const user = JSON.parse(userInfo);
       const token = user.access_token;
 
-      const response = await axios.post(
-        "http://localhost:8000/quiz/quizzes/create",
+      const response = await api.post(
+        "/quiz/quizzes/create",
         quizData,
         {
           headers: {

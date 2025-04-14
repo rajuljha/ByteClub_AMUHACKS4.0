@@ -107,7 +107,7 @@ const Index = () => {
                 A learning experience tailored for your child
               </h2>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mx-auto">
                 {/* Feature 1 */}
                 <div className="bg-white rounded-xl p-8 flex items-start gap-6 text-left shadow-lg">
                   <div className="bg-brand-lightPurple p-3 rounded-lg">

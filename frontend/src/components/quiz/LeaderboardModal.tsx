@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Trophy, Medal, Star, User, Eye, Loader2, Clock } from "lucide-react";
 import QuizResultModal from "./QuizResultModal";
 import axios from "axios";
+import { api } from "@/api";
 
 interface Answer {
   question_index: number;
@@ -56,8 +57,8 @@ const LeaderboardModal = ({ open, onOpenChange, quizName, quizId }: LeaderboardM
         const user = JSON.parse(userInfo || "{}");
         const token = user.access_token;
 
-        const response = await axios.get(
-          `http://localhost:8000/quiz/quizzes/${quizId}/leaderboard`,
+        const response = await api.get(
+          `/quiz/quizzes/${quizId}/leaderboard`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
