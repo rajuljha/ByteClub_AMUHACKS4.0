@@ -49,7 +49,7 @@ Whether it's basic math, science concepts, or general knowledge, Quizzly brings 
 ---
 
 ## Demo Video
-
+See the project demo video on [Youtube](https://www.youtube.com/watch?v=rZ0rmfS2lOA&feature=youtu.be)
 
 
 ## Diagrams
