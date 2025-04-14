@@ -7,7 +7,7 @@
 
 ---
 
-For a live demo, please see https://quizlyio.netlify.app
+For a live demo, please see [https://quizlyio.netlify.app](https://quizzlyio.netlify.app/)
 
 The Backend API is hosted on https://quizzly-backend.onrender.com
 
