@@ -6,7 +6,7 @@
 #AMUHacks4.0 #AMU #CSSAMU
 
 ---
-
+> [!Note] Please wait a few seconds at first for the frontend, when it make the first call to render, it takes some time to spin up a sleeping instance.
 For a live demo, please see [https://quizlyio.netlify.app](https://quizzlyio.netlify.app/)
 
 The Backend API is hosted on https://quizzly-backend.onrender.com
