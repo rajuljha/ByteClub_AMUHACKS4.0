@@ -296,7 +296,6 @@ async def get_leaderboard(quiz_id: str):
     user_responses = quiz.get("user_responses", [])
     total_questions = len(quiz.get("questions", []))
 
-    # Transform user responses into leaderboard format with detailed information
     leaderboard_data = []
     for response in user_responses:
         score = response.get("score", 0)

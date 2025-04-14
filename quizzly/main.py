@@ -8,23 +8,11 @@ from quizzly.core.config import settings
 
 
 app = FastAPI()
-
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:8080"],  # frontend origin
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.include_router(parent.router, prefix="/parent", tags=["Parent"])
-app.include_router(quiz.router, prefix="/quiz", tags=["Quiz"])
-app.include_router(content.router, prefix="/content", tags=["Content"])
-
 # Read and parse CORS origins
 origins_str = settings.CORS_ORIGINS
 origins = [origin.strip() for origin in origins_str.split(",") if origin.strip()]
+
+print(origins)
 
 # Enable CORS
 app.add_middleware(
@@ -34,3 +22,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(parent.router, prefix="/parent", tags=["Parent"])
+app.include_router(quiz.router, prefix="/quiz", tags=["Quiz"])
+app.include_router(content.router, prefix="/content", tags=["Content"])
