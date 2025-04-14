@@ -143,7 +143,7 @@ const QuizCard = ({ quiz, onDelete }: QuizCardProps) => {
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(`${quiz.trigger_link}}`);
+    navigator.clipboard.writeText(`${quiz.trigger_link}`);
     setIsCopied(true);
     toast.success("Link copied to clipboard!");
     setTimeout(() => {

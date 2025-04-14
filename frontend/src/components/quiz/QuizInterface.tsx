@@ -115,7 +115,7 @@ const QuizInterface = () => {
   };
 
   const handleCloseQuiz = () => {
-    window.close();
+    window.location.href = '/';  
   };
 
   const handleSubmitQuiz = async () => {
