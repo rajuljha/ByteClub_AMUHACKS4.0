@@ -1,0 +1,24 @@
+name: Run Fossology Scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  fossology-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Fossology Scan
+        uses: rajuljha/fossology-action@main
+        with:
+          scan_mode: "diff"
+          scanners: "nomos ojo"
+          report_format: "SPDX_JSON"
