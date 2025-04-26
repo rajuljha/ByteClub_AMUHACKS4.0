@@ -19,6 +19,5 @@ jobs:
       - name: Run Fossology Scan
         uses: rajuljha/fossology-action@main
         with:
-          scan_mode: "diff"
           scanners: "nomos ojo"
           report_format: "SPDX_JSON"
