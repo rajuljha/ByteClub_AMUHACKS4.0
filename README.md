@@ -3,7 +3,6 @@
 
 >> This was created during AMUHacks4.0, under the [theme of Smart Education](https://amuhacks-4.vercel.app/#themes) by Team **ByteClub**
 
-#AMUHacks4.0 #AMU #CSSAMU
 
 ---
 > [!Note] Please wait a few seconds at first for the frontend, when it make the first call to render, it takes some time to spin up a sleeping instance.
