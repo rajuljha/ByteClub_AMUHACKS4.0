@@ -7,7 +7,7 @@
 ---
 > [!Note] Please wait a few seconds at first for the frontend, when it make the first call to render, it takes some time to spin up a sleeping instance.
 
-For a live demo, please see [https://quizlyio.netlify.app](https://quizzlyio.netlify.app/)
+For a live demo, please see [https://quizzlyio.netlify.app](https://quizzlyio.netlify.app/)
 
 The Backend API is public and hosted on https://quizzly-backend.onrender.com/docs
 
